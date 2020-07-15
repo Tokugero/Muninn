@@ -3,9 +3,9 @@ module.exports = {
 	description: 'Cleans command and bot spam. Also triggered by munclear, because Victor can\'t remember the actual name half the time.',
 	metacommand: true,
 	allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153'],
-	alias(command, args) {
+	alias(command, args, msg) {
 		if(command === 'munclear') command = 'munclean';
-		return [command, args];
+		return [command, args, msg];
 	},
 	execute(msg, args) {
 		const origChannel = msg.channel;

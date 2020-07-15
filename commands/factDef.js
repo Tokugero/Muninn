@@ -1,8 +1,33 @@
-const {readFile, writeFile} = require('fs');
+const {readFile, writeFile, existsSync} = require('fs');
 module.exports = {
 	name: 'factdef',
 	description: 'Defines facts for factlookup command.',
 	allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153', '158423194284457984', '332649893409849349', '162729606145638400'],
+	alias(command, args, msg) {
+		if(command.startsWith('!')){
+			if(args.map(arg => arg.toLowerCase()).includes('is')) {
+			let override = false;
+			args.unshift(command.substring(1));
+			if(args[0].toLowerCase() === 'no') {//overriding
+				override = true;
+				args.shift();
+			}
+			let isIndex = args.findIndex(arg => arg.toLowerCase() === 'is');
+			let key = args.slice(0, isIndex).join(' ');
+			args = args.slice(isIndex + 1);
+			args.unshift(key);
+			if(override) args.unshift('override');
+			command = 'factdef';
+		} else if(command === '!delete'){
+			command = 'factdef';
+			args.unshift('delete');
+		} else {
+			args.unshift(command.substring(1));
+			command = 'factlookup';
+		}
+		}
+		return [command, args, msg];
+	},
 	execute(msg, args) {
 		const origChannel = msg.channel;
 		const server = origChannel.guild;
@@ -13,30 +38,49 @@ module.exports = {
 		}
 		if(args[0].toLowerCase() === 'override') {
 			args.override = true;
-			argsm.shift();
+			args.shift();
 		}
-		readFile(`${__dirname}\\facts.json`, (err, facts) => {
-			if (err) throw err;
-			facts = JSON.parse(facts);
+		if(args[0].toLowerCase() === 'global') {
+			let author = msg.author.id;
+			if(author === process.env.ADMIN || author === '293146019238117376'){
+				args.global = true;
+			} else {
+				origChannel.send('You do not have permission to write a global fact.');
+			}
+			args.shift();
+		}
+		let factsFile = args.global? 'global':server.id;
+		let factsPath = `${__dirname}/facts/${factsFile}.json`;
+		function handleFact(factsObj){
 			let key = args.shift().toLowerCase();
 			let fact = args.join(' ');
 			if (args.deleteFact) {
-				fact = facts[key];
+				fact = factsObj[key];
 				let backupKey = `${key} ${args.join(' ')}`
-				if(facts[backupKey] !== undefined){
+				if(factsObj[backupKey] !== undefined){
 					key = backupKey;
-					fact = facts[backupKey];
+					fact = factsObj[backupKey];
 				}
-				delete facts[key];
+				delete factsObj[key];
 				origChannel.send(`${key}: ${fact} removed.`);
-				writeFile(`${__dirname}\\facts.json`, JSON.stringify(facts, null, '\t'), 'utf8', (err) => {if(err) throw err;});
-			} else if(facts[key] === undefined || args.override === true) {
-				facts[key] = fact;
+				writeFile(factsPath, JSON.stringify(factsObj, null, '\t'), 'utf8', (err) => {if(err) throw err;});
+			} else if(factsObj[key] === undefined || args.override === true) {
+				factsObj[key] = fact;
 				origChannel.send(`${key}: ${fact} ${args.override?'changed.':'added.'}`);
-				writeFile(`${__dirname}\\facts.json`, JSON.stringify(facts, null, '\t'), 'utf8', (err) => {if(err) throw err;});
+				writeFile(factsPath, JSON.stringify(factsObj, null, '\t'), 'utf8', (err) => {if(err) throw err;});
 			} else {
 				origChannel.send(`${key} already has a fact defined.`);
 			}
-		});
+		}
+		if(existsSync(factsPath)){
+			readFile(factsPath, (err, facts) => {
+				if (err) throw err;
+				facts = JSON.parse(facts);
+				handleFact(facts);
+			});
+		} else {
+			let facts = {};
+			handleFact(facts);
+		}
 	},
 };

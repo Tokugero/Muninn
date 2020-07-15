@@ -29,15 +29,25 @@ bot.on('message', msg => {
 	if(author === bot.user.id) return;
 	
 	//some messages can trigger the bot to run a command in non-standard ways
-	[command, args] = commandAliases.reduce((commandArgs, alias) => alias(...commandArgs), [command, args]);
+	[command, args] = commandAliases.reduce((commandArgs, alias) => alias(...commandArgs), [command, args, msg]);
 	
 	if (!bot.commands.has(command)) return;
 	let botCommand = bot.commands.get(command);
 	// for commands that need access to other commands
 	if (botCommand.metacommand) args.unshift(bot.commands);
 	//whitelists
-	if ((botCommand.allowedChannels !== undefined && !botCommand.allowedChannels.includes(chan) && chan !== 'console')
-	|| (botCommand.allowedUsers !== undefined && !botCommand.allowedUsers.includes(author) && author !== ADMIN)) return;
+	if (botCommand.allowedChannels !== undefined && !botCommand.allowedChannels.includes(chan) && chan !== 'console'){
+		return;
+	}
+	if (botCommand.allowedUsers !== undefined && author !== ADMIN){
+		let allowedUsers = botCommand.allowedUsers;
+		if(Array.isArray(allowedUsers) && !allowedUsers.includes(author)){
+			return;
+		}
+		if(typeof allowedUsers === 'function' && !allowedUsers(args, msg)){
+			return;
+		}
+	}
 	console.info(`${msg.author.tag} called command: ${command}${args.length > 0? ' with args ' + args:''}`);
 	//cooldown handling
 	if(botCommand.cooldown !== undefined) {

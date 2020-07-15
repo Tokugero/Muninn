@@ -10,4 +10,5 @@ module.exports = {
 	ListCommands: require('./listCommands'),
 	MunClean: require('./spamCleanup'),
 	SpitFax: require('./discordObjectDefine'),
+	DontPingSimon: require('./dontPingSimon'),
 };
