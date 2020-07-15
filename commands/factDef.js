@@ -1,30 +1,33 @@
 const {readFile, writeFile, existsSync} = require('fs');
+function isAdmin(id){
+	return (id === process.env.ADMIN || id === '293146019238117376');
+}
 module.exports = {
 	name: 'factdef',
 	description: 'Defines facts for factlookup command.',
-	allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153', '158423194284457984', '332649893409849349', '162729606145638400'],
+	/*allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153', '158423194284457984', '332649893409849349', '162729606145638400'],*/
 	alias(command, args, msg) {
 		if(command.startsWith('!')){
 			if(args.map(arg => arg.toLowerCase()).includes('is')) {
-			let override = false;
-			args.unshift(command.substring(1));
-			if(args[0].toLowerCase() === 'no') {//overriding
-				override = true;
-				args.shift();
+				let override = false;
+				args.unshift(command.substring(1));
+				if(args[0].toLowerCase() === 'no') {//overriding
+					override = true;
+					args.shift();
+				}
+				let isIndex = args.findIndex(arg => arg.toLowerCase() === 'is');
+				let key = args.slice(0, isIndex).join(' ');
+				args = args.slice(isIndex + 1);
+				args.unshift(key);
+				if(override) args.unshift('override');
+				command = 'factdef';
+			} else if(command === '!delete'){
+				command = 'factdef';
+				args.unshift('delete');
+			} else {
+				args.unshift(command.substring(1));
+				command = 'factlookup';
 			}
-			let isIndex = args.findIndex(arg => arg.toLowerCase() === 'is');
-			let key = args.slice(0, isIndex).join(' ');
-			args = args.slice(isIndex + 1);
-			args.unshift(key);
-			if(override) args.unshift('override');
-			command = 'factdef';
-		} else if(command === '!delete'){
-			command = 'factdef';
-			args.unshift('delete');
-		} else {
-			args.unshift(command.substring(1));
-			command = 'factlookup';
-		}
 		}
 		return [command, args, msg];
 	},
@@ -42,18 +45,30 @@ module.exports = {
 		}
 		if(args[0].toLowerCase() === 'global') {
 			let author = msg.author.id;
-			if(author === process.env.ADMIN || author === '293146019238117376'){
+			if(isAdmin(author)){
 				args.global = true;
 			} else {
-				origChannel.send('You do not have permission to write a global fact.');
+				origChannel.send('You do not have permission to change a global fact.');
 			}
+			args.shift();
+		}
+		if(args[0].toLowerCase() === '-json') {
+			args.JSONparse = true;
 			args.shift();
 		}
 		let factsFile = args.global? 'global':server.id;
 		let factsPath = `${__dirname}/facts/${factsFile}.json`;
 		function handleFact(factsObj){
 			let key = args.shift().toLowerCase();
+			if(key === '') return;
 			let fact = args.join(' ');
+			if(args.JSONparse) {
+				try{
+					fact = JSON.parse(fact);
+				} catch (e) {
+					origChannel.send('Invalid format.');
+				}
+			}
 			if (args.deleteFact) {
 				fact = factsObj[key];
 				let backupKey = `${key} ${args.join(' ')}`

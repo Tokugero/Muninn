@@ -1,4 +1,6 @@
 const {readFile, existsSync} = require('fs');
+const backtick = '`';
+const threeBackticks = backtick + backtick + backtick;
 module.exports = {
 	name: 'factlookup',
 	description: 'Looks up facts. Also triggered by !<fact key>. Send just ! to list all the available facts.',
@@ -10,16 +12,23 @@ module.exports = {
 		let serverFactsPath = `${__dirname}/facts/${server.id}.json`;
 		let globalFactsPath = `${__dirname}/facts/global.json`;
 		function handleFact(facts){
-			let fact = undefined;
-			let joinedArgs = args.join(' ').toLowerCase();
+			let fact = undefined, json = false, joinedArgs = args.join(' ').toLowerCase();
 			if(args[0] === '') {
 				fact = 'There are facts defined for the following keys: ' + Object.keys(facts).join(', ') + '.';
-			} else if(facts[joinedArgs] !== undefined) {
+			} else if(args[0] === '-json') {
+				json = true;
+				args.shift();
+				joinedArgs = args.join(' ').toLowerCase();
+			}
+			if(facts[joinedArgs] !== undefined) {
 				fact = facts[joinedArgs];
 			} else if(facts[args[0]] !== undefined) {
 				fact = facts[args[0]];
 			}
-			if(fact !== undefined) origChannel.send(fact);
+			if(fact !== undefined) {
+				if(json && typeof fact === 'object') fact = `${threeBackticks}js\r\n${JSON.stringify(fact)}${threeBackticks}`;
+				origChannel.send(fact);
+			}
 		}
 		readFile(globalFactsPath, (err, globalFacts) => {
 			if (err) throw err;
