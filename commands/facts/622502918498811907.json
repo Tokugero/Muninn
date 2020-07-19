@@ -29,7 +29,7 @@
 			"fields": [
 				{
 					"name": "Rule 2",
-					"value": "*Be Honest* - If you share files here, be sure to give proper credit. Do not take credit for another person's work, and do not impersonate members of the community. Unless you're Victor, who is very mysterious and hides his identity.",
+					"value": "*Be Thoughtful* - Don't spam. Use channels for their intended purposes. Don't ping Simon. If you have an issue, post in <#622507268679663626> and it will be addressed when someone is available to help. Don't ask for support in private messages, either here or on the Nexus.",
 					"inline": false
 				}
 			],
@@ -50,7 +50,7 @@
 			"fields": [
 				{
 					"name": "Rule 3",
-					"value": "*Be Thoughtful* - Don't spam. Use channels for their intended purposes. Don't ping Simon. If you have an issue, post in <#622507268679663626> and it will be addressed when someone is available to help. Don't ask for support in private messages, either here or on the Nexus.",
+					"value": "*Be Honest* - If you share files here, be sure to give proper credit. Do not take credit for another person's work, and do not impersonate members of the community. Unless you're Victor, who is very mysterious and hides his identity.",
 					"inline": false
 				}
 			],
