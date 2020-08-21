@@ -1,6 +1,12 @@
 const {readFile, writeFile, existsSync} = require('fs');
+const flags = {
+	'-override': 'override',
+	'-delete': 'deleteFact',
+	'-global': 'global',
+	'-json': 'JSONparse'
+};
 function isAdmin(id){
-	return (id === process.env.ADMIN || id === '293146019238117376');
+	return (id === process.env.ADMIN || id === process.env.AUXADMIN);
 }
 module.exports = {
 	name: 'factdef',
@@ -19,11 +25,11 @@ module.exports = {
 				let key = args.slice(0, isIndex).join(' ');
 				args = args.slice(isIndex + 1);
 				args.unshift(key);
-				if(override) args.unshift('override');
+				if(override) args.unshift('-override');
 				command = 'factdef';
-			} else if(command === '!delete'){
+			} else if(command === '!-delete'){
 				command = 'factdef';
-				args.unshift('delete');
+				args.unshift('-delete');
 			} else {
 				args.unshift(command.substring(1));
 				command = 'factlookup';
@@ -35,41 +41,36 @@ module.exports = {
 		const origChannel = msg.channel;
 		const server = origChannel.guild;
 		if(!server.available) return;
-		if(args[0].toLowerCase() === 'delete') {
-			args.deleteFact = true;
-			args.shift();
-		}
-		if(args[0].toLowerCase() === 'override') {
-			args.override = true;
-			args.shift();
-		}
-		if(args[0].toLowerCase() === 'global') {
-			let author = msg.author.id;
-			if(isAdmin(author)){
-				args.global = true;
+		const options = Object.fromEntries(Object.keys(flags).map(key => [key, false]));
+		let firstArg = args[0].toLowerCase();
+		while (firstArg in flags) {
+			if (firstArg === '-global') {
+				if(isAdmin(msg.author.id)){
+					options.global = true;
+				} else {
+					origChannel.send('You do not have permission to change a global fact.');
+				}
 			} else {
-				origChannel.send('You do not have permission to change a global fact.');
+				let key = flags[firstArg];
+				options[key] = true;
 			}
 			args.shift();
+			firstArg = args[0].toLowerCase();
 		}
-		if(args[0].toLowerCase() === '-json') {
-			args.JSONparse = true;
-			args.shift();
-		}
-		let factsFile = args.global? 'global':server.id;
+		let factsFile = options.global? 'global':server.id;
 		let factsPath = `${__dirname}/facts/${factsFile}.json`;
 		function handleFact(factsObj){
 			let key = args.shift().toLowerCase();
 			if(key === '') return;
 			let fact = args.join(' ');
-			if(args.JSONparse) {
+			if(options.JSONparse) {
 				try{
 					fact = JSON.parse(fact);
 				} catch (e) {
 					origChannel.send('Invalid format.');
 				}
 			}
-			if (args.deleteFact) {
+			if (options.deleteFact) {
 				fact = factsObj[key];
 				let backupKey = `${key} ${args.join(' ')}`
 				if(factsObj[backupKey] !== undefined){
@@ -79,9 +80,9 @@ module.exports = {
 				delete factsObj[key];
 				origChannel.send(`${key}: ${fact} removed.`);
 				writeFile(factsPath, JSON.stringify(factsObj, null, '\t'), 'utf8', (err) => {if(err) throw err;});
-			} else if(factsObj[key] === undefined || args.override === true) {
+			} else if(factsObj[key] === undefined || options.override === true) {
 				factsObj[key] = fact;
-				origChannel.send(`${key}: ${fact} ${args.override?'changed.':'added.'}`);
+				origChannel.send(`${key}: ${fact} ${options.override?'changed.':'added.'}`);
 				writeFile(factsPath, JSON.stringify(factsObj, null, '\t'), 'utf8', (err) => {if(err) throw err;});
 			} else {
 				origChannel.send(`${key} already has a fact defined.`);
