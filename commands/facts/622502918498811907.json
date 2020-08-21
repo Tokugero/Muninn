@@ -105,12 +105,32 @@
 			}
 		}
 	},
+	"rule 6": {
+		"embed": {
+			"title": "Rules:",
+			"description": "<#622505609337503745>",
+			"color": 5011395,
+			"fields": [
+				{
+					"name": "Rule 6",
+					"value": "*Stop* - Jesus fucking Christ, people, stop pinging authors about their work.",
+					"inline": false
+				}
+			],
+			"author": {
+				"name": "Simon Magus Mods",
+				"icon_url": "https://cdn.discordapp.com/icons/622502918498811907/8ca89c5c2d0d90f56d3f0f60ba75601f.png"
+			},
+			"footer": {
+				"text": "Moderator decisions are final."
+			}
+		}
+	},
 	"mysticism": "the short name for Simon Magus's primary mod, Mysticism: A Caster Bias Overhaul. We eagerly await Mysticism 2: Magic Boogaloo.",
 	"exorcise simon": "*Hi I was looking in LOOT, and it said that Mysticism has **I T Ms**. Can you please fix those?*",
 	"exorcise pierre": "**÷ ÷ ÷ *d i v i s i o n* ÷ ÷ ÷**",
 	"exorcise victorf": "VictorF is too powerful for that spell.",
 	"exorcise carl": "Testudo Pulmenti",
-	"sparxposting": "the reason why you're not allowed to use factdef",
 	"dropbox": "another name for discord channels",
 	"tate": "Pierre \"Cornfucker\" Despereaux",
 	"sos": "🆘",
@@ -157,5 +177,16 @@
 		]
 	},
 	"two": "https://discordapp.com/channels/622502918498811907/622503149638254592/730891493795037305",
-	"exorcise sparx": "water is wet"
+	"the hardest part about adamant 4": "It's really not hard to make such a sloppy at best, malicious at worst mod. I could do it in 12 seconds, and I'm over here coding for 6 hours a day while mom makes my tendies.",
+	"compiler problems": "related issues: PEBKAC. Please update defective part.",
+	"golden rule": "\"Eh, fuck 'em.\"",
+	"victor's muninn": "more reliable than Tate's Muninn",
+	"tate's muninn": "offline, probably",
+	"victorf": "\"I clear out user targetted facts.\" - VictorF, 2020",
+	"i contain multitudes": "https://cdn.discordapp.com/attachments/622502918498811909/741438304150487080/myscreenrn.png",
+	"whitelist": "I will ban EVERY LAST ONE OF YOU if you make me",
+	"f5": "Refresh Mysticism, motherfucker.",
+	"shrug": "¯\\_(ツ)_/¯",
+	"space 👏 simon": "nerfing aetherius",
+	"bae": "Bethesda Archive Extractor is bae"
 }
