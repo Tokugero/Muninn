@@ -23,7 +23,10 @@ bot.on('ready', () => {
 bot.on('message', msg => {
 	const chan = msg.channel.name;
 	const author = msg.author.id;
-	let args = msg.content.trim().split(/ +/);
+	let args = msg.content.trim()//message body, removing extra spaces and such
+		.split(/"/).map(s => s.trim())//split around quotes, such that phrases in quotes are in odd indices
+		.map((chunk, index) => index % 2 === 0? chunk.split(/ +/): chunk)//return quoted phrases as is, split others around spaces
+		.flat().filter(s => s !== "");//condense nested arrays to one array and remove empty strings
 	let command = args.shift().toLowerCase();
 	
 	if(author === bot.user.id) return;
