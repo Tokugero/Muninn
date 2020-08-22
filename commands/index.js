@@ -11,4 +11,5 @@ module.exports = {
 	MunClean: require('./spamCleanup'),
 	SpitFax: require('./discordObjectDefine'),
 	DontPingSimon: require('./dontPingSimon'),
+	MunSet: require('./serverSettings'),
 };

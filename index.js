@@ -1,4 +1,5 @@
 require('dotenv').config();
+const util = require('util');
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
@@ -12,24 +13,32 @@ Object.keys(botCommands).map(key => {
 
 const TOKEN = process.env.TOKEN;
 const ADMIN = process.env.ADMIN;
+const AUXADMIN = process.env.AUXADMIN;
 const BOT = process.env.BOT;
+const baseServer = '718870504772993045';
+const munLog = '746741263130165338';
+process.bot = bot;
+process.isAdmin = (id) => (id === process.env.ADMIN || id === process.env.AUXADMIN);
 
 bot.login(TOKEN);
 
 bot.on('ready', () => {
 	console.info(`Logged in as ${bot.user.tag}!`);
+	const logChannel = bot.guilds.get(baseServer).channels.get(munLog);
+	process.log = (str) => logChannel.send(typeof str === 'string'? str: util.format(str)
+	).catch(error => console.log(`${str} failed to send.\r\n${error}`));
 });
 
 bot.on('message', msg => {
 	const chan = msg.channel.name;
 	const author = msg.author.id;
+	if(author === bot.user.id) return;
+	if(!msg.content || msg.content === "") return;
 	let args = msg.content.trim()//message body, removing extra spaces and such
 		.split(/"/).map(s => s.trim())//split around quotes, such that phrases in quotes are in odd indices
 		.map((chunk, index) => index % 2 === 0? chunk.split(/ +/): chunk)//return quoted phrases as is, split others around spaces
 		.flat().filter(s => s !== "");//condense nested arrays to one array and remove empty strings
 	let command = args.shift().toLowerCase();
-	
-	if(author === bot.user.id) return;
 	
 	//some messages can trigger the bot to run a command in non-standard ways
 	[command, args] = commandAliases.reduce((commandArgs, alias) => alias(...commandArgs), [command, args, msg]);
@@ -51,7 +60,7 @@ bot.on('message', msg => {
 			return;
 		}
 	}
-	console.info(`${msg.author.tag} called command: ${command}${args.length > 0? ' with args ' + args:''}`);
+	process.log(`${msg.author.tag} called command: ${command}${args.length > 0? ' with args ' + args:''}`);
 	//cooldown handling
 	if(botCommand.cooldown !== undefined) {
 		let now = Date.now();

@@ -162,7 +162,7 @@ const supportedObjects = {
 					name: `OtherFields.txt`
 				}];
 			}
-			console.log(messageObj);
+			process.log(messageObj);
 			origChannel.send(messageObj);
 		}).catch(e => {if(e) origChannel.send(e.toString());});
 	}

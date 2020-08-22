@@ -5,9 +5,6 @@ const flags = {
 	'-global': 'global',
 	'-json': 'JSONparse'
 };
-function isAdmin(id){
-	return (id === process.env.ADMIN || id === process.env.AUXADMIN);
-}
 module.exports = {
 	name: 'factdef',
 	description: 'Defines facts for factlookup command.',
@@ -42,10 +39,11 @@ module.exports = {
 		const server = origChannel.guild;
 		if(!server.available) return;
 		const options = Object.fromEntries(Object.keys(flags).map(key => [key, false]));
+		if(args.length === 0) return;
 		let firstArg = args[0].toLowerCase();
 		while (firstArg in flags) {
 			if (firstArg === '-global') {
-				if(isAdmin(msg.author.id)){
+				if(process.isAdmin(msg.author.id)){
 					options.global = true;
 				} else {
 					origChannel.send('You do not have permission to change a global fact.');
@@ -55,8 +53,10 @@ module.exports = {
 				options[key] = true;
 			}
 			args.shift();
+			if(args.length === 0) return;
 			firstArg = args[0].toLowerCase();
 		}
+		if(args.length === 0) return;
 		let factsFile = options.global? 'global':server.id;
 		let factsPath = `${__dirname}/facts/${factsFile}.json`;
 		function handleFact(factsObj){
