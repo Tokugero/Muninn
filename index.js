@@ -17,16 +17,18 @@ const AUXADMIN = process.env.AUXADMIN;
 const BOT = process.env.BOT;
 const baseServer = '718870504772993045';
 const munLog = '746741263130165338';
+const groups = bot.commands.get('munset').groups;
 process.bot = bot;
 process.isAdmin = (id) => (id === process.env.ADMIN || id === process.env.AUXADMIN);
+
 
 bot.login(TOKEN);
 
 bot.on('ready', () => {
 	console.info(`Logged in as ${bot.user.tag}!`);
 	const logChannel = bot.guilds.get(baseServer).channels.get(munLog);
-	process.log = (str) => logChannel.send(typeof str === 'string'? str: util.format(str)
-	).catch(error => console.log(`${str} failed to send.\r\n${error}`));
+	process.log = (str) => logChannel.send(typeof str === 'string'? str: util.format(str))
+	.catch(error => console.log(`${str} failed to send.\r\n${error}`));
 });
 
 bot.on('message', msg => {
@@ -51,12 +53,12 @@ bot.on('message', msg => {
 	if (botCommand.allowedChannels !== undefined && !botCommand.allowedChannels.includes(chan) && chan !== 'console'){
 		return;
 	}
-	if (botCommand.allowedUsers !== undefined && author !== ADMIN){
+	if (botCommand.allowedUsers !== undefined && author !== ADMIN && author !== AUXADMIN){
 		let allowedUsers = botCommand.allowedUsers;
 		if(Array.isArray(allowedUsers) && !allowedUsers.includes(author)){
 			return;
 		}
-		if(typeof allowedUsers === 'function' && !allowedUsers(args, msg)){
+		if(typeof allowedUsers === 'function' && !allowedUsers(args, msg, groups)){
 			return;
 		}
 	}
@@ -83,3 +85,13 @@ bot.on('message', msg => {
 		msg.reply(`Error: ${error}`);
 	}
 });
+
+/*[
+  'munset',
+  'munkill',
+  'munboot',
+  'munarch',
+  'munclean',
+  'raffle',
+  'dontpingsimon'
+]*/

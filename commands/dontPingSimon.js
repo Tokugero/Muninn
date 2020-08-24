@@ -11,7 +11,7 @@ const usersAllowedToPingSimon = [
 module.exports = {
 	name: 'dontpingsimon',
 	description: 'Tells users not to ping Simon.',
-	allowedUsers: [],
+	allowedUsers: (args, msg, groups) => false,
 	alias(command, args, msg) {
 		const origChannel = msg.channel;
 		const server = origChannel.guild;

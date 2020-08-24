@@ -13,7 +13,7 @@ module.exports = {
 	name: 'munarch',
 	description: 'Creates and uploads an archive containing this bot\'s source code.',
 	allowedChannels: ['console'],
-	allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153'],
+	allowedUsers: (args, msg, groups) => process.isAdmin(msg.author.id),
 	execute(msg, args) {
 		const origChannel = msg.channel;
 		const server = origChannel.guild;

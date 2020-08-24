@@ -2,7 +2,7 @@ module.exports = {
 	name: 'munclean',
 	description: 'Cleans command and bot spam. Also triggered by munclear, because Victor can\'t remember the actual name half the time.',
 	metacommand: true,
-	allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153'],
+	allowedUsers: (args, msg, groups) => groups.isAllowedToSet(msg.guild, groups.HAS_BOT_ACCESS, msg.member),
 	alias(command, args, msg) {
 		if(command === 'munclear') command = 'munclean';
 		return [command, args, msg];

@@ -141,7 +141,7 @@ const supportedObjects = {
 							embObj.footer = footerObj;
 						}
 					}
-					console.log(embObj);
+					process.log(embObj);
 					return '```' + JSON.stringify(embObj) + '```';
 				}).join('\r\n'),
 				inline: false

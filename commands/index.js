@@ -1,15 +1,16 @@
 module.exports = {
-	Raffle: require('./raffle'),
+	MunSet: require('./serverSettings'),
 	MunCheck: require('./checkAccess'),
+	ListCommands: require('./listCommands'),
 	MunKill: require('./kill'),
 	MunBoot: require('./reboot'),
-	NotABug: require('./notABug'),
+	MunArch: require('./selfArchive'),
+	MunClean: require('./spamCleanup'),
 	FactLookup: require('./factLookup'),
 	FactDef: require('./factDef'),
-	MunArch: require('./selfArchive'),
-	ListCommands: require('./listCommands'),
-	MunClean: require('./spamCleanup'),
 	SpitFax: require('./discordObjectDefine'),
+	Raffle: require('./raffle'),
+	NotABug: require('./notABug'),
 	DontPingSimon: require('./dontPingSimon'),
-	MunSet: require('./serverSettings'),
+	
 };

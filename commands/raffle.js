@@ -4,7 +4,7 @@ module.exports = {
 	name: 'raffle',
 	description: 'Rolls raffle winers. Will list all possible winners unless a limiting number is given.',
 	allowedChannels: ['console'],
-	allowedUsers: ['362250920786132993', '293146019238117376', '120006979686105088', '288092789311537153'],
+	allowedUsers: (args, msg, groups) => groups.isAllowedToSet(msg.guild, groups.HAS_BOT_ACCESS, msg.member),
 	execute(msg, args) {
 		const origChannel = msg.channel;
 		const server = origChannel.guild;
