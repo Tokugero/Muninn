@@ -86,7 +86,7 @@ bot.on('message', msg => {
 	}
 });
 
-/*[
+/*[ commands with allowedUsers rewrites that need to be tested
   'munset',
   'munkill',
   'munboot',
