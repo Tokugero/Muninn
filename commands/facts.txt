@@ -1,0 +1,1 @@
+The folder with facts is moved via the $dump facts command and is not included in the repo.
