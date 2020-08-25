@@ -14,7 +14,7 @@ module.exports = {
 		origChannel.fetchMessages().then(messages => {
 			let deletableMessages = messages.filter(message => {
 				if(message.author.bot) return true;
-				if(message.content.startsWith('!') || message.content.startsWith('<@!718870675921698836>') || message.content.startsWith('<@718870675921698836>') || message.content.toLowerCase().startsWith('munclear')) return true;
+				if(message.content.startsWith('!') || message.content.startsWith('$') || message.content.startsWith('<@!718870675921698836>') || message.content.startsWith('<@718870675921698836>') || message.content.toLowerCase().startsWith('munclear')) return true;
 				let command = message.content.split(/ +/).shift().toLowerCase();
 				return args[0].has(command);
 			});

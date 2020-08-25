@@ -6,6 +6,7 @@ module.exports = {
 	allowedChannels: ['console', 'channel2actionnews'],
 	allowedUsers: (args, msg, groups) => process.isAdmin(msg.author.id),
 	execute(msg, args) {
+		if(args.length > 0 && args[0].toLowerCase() !== process.env.WHO.toLowerCase()) return;
 		const chan = msg.channel;
 		spawn(process.argv[0], process.argv.slice(1), {
 			detached: true, 

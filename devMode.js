@@ -12,6 +12,7 @@ Object.keys(botCommands).map(key => {
 
 const TOKEN = process.env.TOKEN;
 delete process.env.TOKEN;
+process.env.WHO = 'dev';
 process.bot = bot;
 
 bot.login(TOKEN);

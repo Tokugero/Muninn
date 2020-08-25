@@ -1,0 +1,5 @@
+{
+	"fs": "fs",
+	"settings": "./serverSettings",
+	"SevenZ": "node-7z"
+}

@@ -6,6 +6,7 @@ module.exports = {
 	MunBoot: require('./reboot'),
 	MunArch: require('./selfArchive'),
 	MunClean: require('./spamCleanup'),
+	MunScript: require('./aReallyReallyBadIdea'),
 	FactLookup: require('./factLookup'),
 	FactDef: require('./factDef'),
 	SpitFax: require('./discordObjectDefine'),

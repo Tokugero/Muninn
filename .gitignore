@@ -59,3 +59,11 @@ typings/
 
 # next.js build output
 .next
+
+# archives created by Muninn
+Muninn.7z
+facts.7z
+settings.7z
+# Muninn subdirectories
+commands/facts/
+commands/settings/
