@@ -6,10 +6,12 @@ const BOT = process.env.BOT;
 const baseServer = '718870504772993045';
 const munLog = '746741263130165338';
 let bot = undefined;
+let groups = undefined;
 process.isAdmin = (id) => (id === process.env.ADMIN || id === process.env.AUXADMIN);
 
 function loggedIn(){
 	bot = process.bot;
+	groups = bot.commands.get('munset').groups;
 	console.info(`Logged in as ${bot.user.tag}!`);
 	const logChannel = bot.guilds.get(baseServer).channels.get(munLog);
 	process.log = (str) => logChannel.send(typeof str === 'string'? str: util.format(str))
