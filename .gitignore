@@ -67,3 +67,5 @@ settings.7z
 # Muninn subdirectories
 facts/
 settings/
+commands/_facts.txt
+commands/_settings.txt
