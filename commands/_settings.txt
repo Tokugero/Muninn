@@ -1,0 +1,1 @@
+Settings are transferred via $dump settings command and are not included in the repo.
