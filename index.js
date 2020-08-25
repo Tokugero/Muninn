@@ -37,9 +37,10 @@ bot.on('message', msg => {
 	if(author === bot.user.id) return;
 	if(!msg.content || msg.content === "") return;
 	let args = msg.content.trim()//message body, removing extra spaces and such
-		.split(/"/).map(s => s.trim())//split around quotes, such that phrases in quotes are in odd indices
+		.split(/(?<!\\)"/).map(s => s.trim())//split around quotes, such that phrases in quotes are in odd indices, but don't match escaped quotes
 		.map((chunk, index) => index % 2 === 0? chunk.split(/ +/): chunk)//return quoted phrases as is, split others around spaces
-		.flat().filter(s => s !== "");//condense nested arrays to one array and remove empty strings
+		.flat().filter(s => s !== "")//condense nested arrays to one array and remove empty strings
+		.map(arg => arg.replace(/\\"/, '"'));//replace \" with "
 	let command = args.shift().toLowerCase();
 	
 	//some messages can trigger the bot to run a command in non-standard ways
