@@ -5,18 +5,22 @@
 		"body": "if(args.length > 0) eval(args[0]);"
 	},
 	{
-		"name": "dump",
-		"level": 0,
-		"body": "if(args.length === 0) {origChannel.send('Dumping supports `facts` and `settings`.');return;}const origChannel = msg.channel;const server = origChannel.guild;if(!server.available) return;const SevenZ = requires.SevenZ;const backslash = /\\/g;let dirs = {};dirs.commandDir = __dirname.replace(backslash, '/');dirs.bot = dirs.commandDir.substring(0, dirs.commandDir.lastIndexOf('/'));dirs.facts = dirs.commandDir + '/facts/*';dirs.settings = dirs.commandDir + '/settings/*';const standardOptions = {$bin: process.env.SEVENZ,workingDir: dirs.bot,recursive: true}let target = args[0];if(target === 'facts' || target == 'settings') {origChannel.send('Archiving (this may take a second)...');SevenZ.add(`${target}.7z`, dirs[target], standardOptions).once('end', () => {origChannel.send(`This is the current set of ${target}.`,{files: [ `${dirs.bot}/${target}.7z` ]}).then(() => requires.fs.promises.unlink(`${dirs.bot}/${target}.7z`)).catch((e) => process.log(e));});} else {origChannel.send('Dumping only supports `facts` and `settings` at this time.');}"
-	},
-	{
 		"name": "who",
 		"level": -1,
 		"body": "const origChannel = msg.channel;origChannel.send(`This is ${process.env.WHO}'s instance of Muninn.`)"
 	},
 	{
 		"name": "test",
-		"level": -1,
 		"body": "msg.reply('you have invoked my ping.')"
+	},
+	{
+		"name": "ban",
+		"level": 2,
+		"body": "const origChannel = msg.channel; const server = origChannel.guild; msg.mentions.users.map(user => server.ban(user).then(user => origChannel.send(`${user.tag} banned.`)).catch(process.log));"
+	},
+	{
+		"name": "kick",
+		"level": 2,
+		"body": "msg.mentions.users.filter(user => msg.guild.members.has(user.id)).map(user => msg.guild.members.get(user.id).kick().then(member => msg.channel.send(`Kicked ${member.displayName}.`)).catch(process.log))"
 	}
 ]

@@ -265,6 +265,7 @@ module.exports = {
 	groups: {
 		isMemberInGroup,
 		isAllowedToSet,
+		parseArgs,
 		ADMIN,
 		MODERATORS,
 		HAS_BOT_ACCESS

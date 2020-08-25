@@ -1,7 +1,7 @@
 const fs = require('fs');
 const settings = require('./serverSettings');
 const requires = Object.fromEntries(Object.keys(require('./scriptRequirements')).map(key => [key, require(require('./scriptRequirements')[key])]));;
-const argDef = (level) => `msg,args${level === 0? ',requires': ''}`; //level 0 scripts can have access to other modules
+const argDef = (level) => `msg,args${level >= 0 && level <= 3? ',settings': ''}${level === 0? ',requires': ''}`; //level 0 scripts can have access to other modules
 let rawScriptsArray = require('./scripts');
 
 let scripts = {
@@ -27,13 +27,93 @@ let scripts = {
 				return;
 			}
 			let body = args.join(' ');
-			scripts[name] = {level, exec: new Function(argdef(level), body)};
+			scripts[name] = {level, exec: new Function(argDef(level), body)};
 			origChannel.send(`${name} added.`);
 			rawScriptsArray.push({name, level, body});
 			fs.promises.writeFile('commands/scripts.json', JSON.stringify(rawScriptsArray, null, '\t'), 'utf8')
 			.then(() => origChannel.send('Scripts updated.'))
 			.catch((e) => origChannel.send('Error encountered. Update failed.')
 				.then(() => process.log(e)));
+		}
+	},
+	set: {
+		level: 0,
+		exec(msg, args) {
+			const origChannel = msg.channel;
+			if(args.length === 0){
+				origChannel.send('You must specify script name to set. Scripts unchanged.');
+				return;
+			}
+			let scriptName = args.shift().toLowerCase();
+			if(scriptName in scripts) {
+				if(args.length === 0){
+					origChannel.send('You must specify property name to set. Properties unchanged.');
+					return;
+				}
+				let key = args.shift().toLowerCase();
+				if(args.length === 0){
+					origChannel.send('You must specify a value. Properties unchanged.');
+					return;
+				}
+				let specialScript = !rawScriptsArray.map(script => script.name).includes(scriptName);
+				let value = args.join(' ');
+				if(key === 'level'){
+					value = parseInt(value);
+					if(isNaN(value)) return origChannel.send('Level must be an int. Properties unchanged.');
+					scripts[scriptName].level = value;
+					if(specialScript) return;
+				} else if (specialScript) {
+					origChannel.send(`You cannot set the name or body of ${scriptName}. Scripts unchanged.`);
+					return;
+				}
+				let script = rawScriptsArray.find(script => script.name === scriptName);
+				if(key === 'name') delete scripts[scriptName];
+				script[key] = value;
+				scripts[script.name] = {level: script.level, exec: new Function(argDef(script.level), script.body)};
+				fs.promises.writeFile('commands/scripts.json', JSON.stringify(rawScriptsArray, null, '\t'), 'utf8')
+				.then(() => origChannel.send('Scripts updated.'))
+				.catch((e) => origChannel.send('Error encountered. Update failed.')
+					.then(() => process.log(e)));
+			} else {
+				origChannel.send(`${scriptName} is not the name of a script.`);
+			}
+		}
+	},
+	dump: {
+		level: 0,
+		exec(msg, args, settings, requires) {
+			if(args.length === 0) {
+				origChannel.send('Dumping supports `facts` and `settings`.');
+				return;
+			}
+			const origChannel = msg.channel;
+			const server = origChannel.guild;
+			if(!server.available) return;
+			const SevenZ = requires.SevenZ;
+			const backslash = /\\/g;
+			let dirs = {};
+			dirs.commandDir = __dirname.replace(backslash, '/');
+			dirs.bot = dirs.commandDir.substring(0, dirs.commandDir.lastIndexOf('/'));
+			dirs.facts = dirs.commandDir + '/facts/*';
+			dirs.settings = dirs.commandDir + '/settings/*';
+			const standardOptions = {
+				$bin: process.env.SEVENZ,
+				workingDir: dirs.bot,
+				recursive: true
+			}
+			let target = args[0];
+			if(target === 'facts' || target == 'settings') {
+				origChannel.send('Archiving (this may take a second)...');
+				SevenZ.add(`${target}.7z`, dirs[target], standardOptions)
+				.once('end', () => {
+					origChannel.send(`This is the current set of ${target}.`,
+						{files: [ `${dirs.bot}/${target}.7z` ]}
+					).then(() => requires.fs.promises.unlink(`${dirs.bot}/${target}.7z`))
+					.catch((e) => process.log(e));
+				});
+			} else {
+				origChannel.send('Dumping only supports `facts` and `settings` at this time.');
+			}
 		}
 	}
 };
@@ -46,9 +126,9 @@ rawScriptsArray.forEach(script => {
 });
 const securityLevels = [ // ascending security
 	(member) => process.isAdmin(member.id), //bot admin only
-	(member) => settings.isAllowedToSet(member.guild, settings.ADMIN, member), //server admin+ only only
-	(member) => settings.isAllowedToSet(member.guild, settings.MODERATORS, member), //moderators+ only
-	(member) => settings.isAllowedToSet(member.guild, settings.HAS_BOT_ACCESS, member) //all users with bot access
+	(member) => settings.groups.isAllowedToSet(member.guild, settings.groups.ADMIN, member), //server admin+ only only
+	(member) => settings.groups.isAllowedToSet(member.guild, settings.groups.MODERATORS, member), //moderators+ only
+	(member) => settings.groups.isAllowedToSet(member.guild, settings.groups.HAS_BOT_ACCESS, member) //all users with bot access
 ];
 
 module.exports = {
@@ -72,7 +152,8 @@ module.exports = {
 				|| script.level >= securityLevels.length)? //script is even more accessible than I've bothered restricting
 				true: securityLevels[script.level](msg.member);
 			if(isAllowed){
-				scripts[scriptName].exec(msg, args, requires);
+				let serverSettings = process.serverSettings.has(server.id)? process.serverSettings.get(server.id) : {};
+				scripts[scriptName].exec(msg, args, serverSettings, requires);
 			} else {
 				origChannel.send('You do not have access to that script.');
 			}
