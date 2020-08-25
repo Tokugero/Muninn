@@ -18,4 +18,4 @@ bot.login(TOKEN);
 
 bot.on('ready', loggedIn);
 
-bot.on('message', (msg) => if(msg.author.id === process.env.ADMIN && msg.channel.name === 'console') handleMessage(msg));
+bot.on('message', (msg) => (msg.author.id === process.env.ADMIN && msg.channel.name === 'console')? handleMessage(msg): undefined);
