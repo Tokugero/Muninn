@@ -69,7 +69,7 @@ const ADMIN = 'serverAdmin';
 const MODERATORS = ['serverAdmin', 'moderator'];
 const HAS_BOT_ACCESS = ['serverAdmin', 'moderator', 'botSupport'];
 function isAllowedToSet(server, allowedGroup, member){
-	return (process.isAdmin(member.id) || server.ownerID === member.id || isMemberInGroup(group, member));
+	return (process.isAdmin(member.id) || server.ownerID === member.id || isMemberInGroup(allowedGroup, member));
 }
 
 const standardNoBotAccess = 'You do not have access to editing server settings.'

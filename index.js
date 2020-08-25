@@ -86,12 +86,6 @@ bot.on('message', msg => {
 	}
 });
 
-/*[ commands with allowedUsers rewrites that need to be tested
-  'munset',
-  'munkill',
-  'munboot',
-  'munarch',
-  'munclean',
-  'raffle',
-  'dontpingsimon'
+/*
+  'raffle' command needs to be reworked to not specifically target the 'premium-raffle' channel.
 ]*/
