@@ -6,7 +6,6 @@
 	},
 	{
 		"name": "who",
-		"level": -1,
 		"body": "const origChannel = msg.channel;origChannel.send(`This is ${process.env.WHO}'s instance of Muninn.`)"
 	},
 	{
@@ -22,5 +21,10 @@
 		"name": "kick",
 		"level": 2,
 		"body": "msg.mentions.users.filter(user => msg.guild.members.has(user.id)).map(user => msg.guild.members.get(user.id).kick().then(member => msg.channel.send(`Kicked ${member.displayName}.`)).catch(process.log))"
+	},
+	{
+		"name": "userchannel",
+		"level": 2,
+		"body": "const server = msg.guild;const origChannel = msg.channel;let name = args[0];let userOwner = msg.mentions.users.first();let category = args.length >= 2? server.channels.filter(chan => chan.type === 'category').find(chan => chan.name.toLowerCase() === args[1].toLowerCase()):undefined;let channelOptions = {type: 'text'};if(userOwner !== undefined) channelOptions.permissionOverwrites = [{id: userOwner.id, allow:['MANAGE_CHANNELS','MANAGE_MESSAGES','MANAGE_ROLES','MANAGE_ROLES_OR_PERMISSIONS']}];let newChannel = server.createChannel(name, channelOptions).then(channel => category === undefined? channel: channel.setParent(category)).then(channel => origChannel.send(`${channel} created.`));"
 	}
 ]

@@ -61,7 +61,7 @@ let scripts = {
 					value = parseInt(value);
 					if(isNaN(value)) return origChannel.send('Level must be an int. Properties unchanged.');
 					scripts[scriptName].level = value;
-					if(specialScript) return;
+					if(specialScript) return origChannel.send('Level updated.');
 				} else if (specialScript) {
 					origChannel.send(`You cannot set the name or body of ${scriptName}. Scripts unchanged.`);
 					return;
