@@ -34,7 +34,8 @@ let scripts = {
 			.then(() => origChannel.send('Scripts updated.'))
 			.catch((e) => origChannel.send('Error encountered. Update failed.')
 				.then(() => process.log(e)));
-		}
+		},
+		help: 'Defines a new script for Muninn. Syntax is `$new <script name> [level] <script body>`.'
 	},
 	set: {
 		level: 0,
@@ -77,7 +78,30 @@ let scripts = {
 			} else {
 				origChannel.send(`${scriptName} is not the name of a script.`);
 			}
-		}
+		},
+		help: 'Sets a script property, such as the name, security, function, or help string. Syntax is `$set <script name> <property> <value>`.'
+	},
+	list: {
+		level: -1,
+		exec(msg, args) {
+			const origChannel = msg.channel;
+			let scriptNames = Object.keys(scripts);
+			let scriptsList = scriptNames
+				.sort((a, b) => scripts[a].level - scripts[b].level)
+				.map(scriptName => {
+					let script = scripts[scriptName];
+					let level = script.level;
+					level = level < 0? securityLevels.length: level;
+					level = level >= securityLevels.length? securityLevels.length: level;
+					let access = ['VictorF only', 'server admin only', 'moderators only', 'users with bot access'];
+					access.push('any user');
+					let message = '`$' + scriptName + '`' + `: Restricted to ${access[level]}.${script.help? ' '+script.help:''}`;
+					return message;
+				}).join('\r\n');
+			let message = `The following scripts are defined:\r\n${scriptsList}`;
+			origChannel.send(message);
+		},
+		help: 'Displays a list of all scripts Muninn has available.'
 	},
 	dump: {
 		level: 0,
@@ -114,7 +138,8 @@ let scripts = {
 			} else {
 				origChannel.send('Dumping only supports `facts` and `settings` at this time.');
 			}
-		}
+		},
+		help: 'Dump is used to transfer files created and changed by Muninn that are not included in Muninn\'s Github repo.'
 	}
 };
 rawScriptsArray.forEach(script => {
@@ -123,6 +148,7 @@ rawScriptsArray.forEach(script => {
 		level: script.level !== undefined ? script.level: -1,
 		exec: new Function(argDef(script.level), script.body)
 	};
+	if(script.help) scripts[name].help = script.help;
 });
 const securityLevels = [ // ascending security
 	(member) => process.isAdmin(member.id), //bot admin only
@@ -145,6 +171,7 @@ module.exports = {
 		const origChannel = msg.channel;
 		const server = origChannel.guild;
 		if(!server.available) return;
+		if(args.filter(str => str.length > 0).length === 0) return origChannel.send('You can use `$list` to check what scripts are available to you.');
 		let scriptName = args.shift().toLowerCase();
 		if(scriptName in scripts) {
 			let script = scripts[scriptName];

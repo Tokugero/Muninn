@@ -2,29 +2,41 @@
 	{
 		"name": "run",
 		"level": 0,
-		"body": "if(args.length > 0) eval(args[0]);"
+		"body": "if(args.length > 0) eval(args[0]);",
+		"help": "Calls `eval` on the args following `$run`. There is a reason you do not have access to this."
 	},
 	{
 		"name": "who",
-		"body": "const origChannel = msg.channel;origChannel.send(`This is ${process.env.WHO}'s instance of Muninn.`)"
+		"body": "const origChannel = msg.channel;origChannel.send(`This is ${process.env.WHO}'s instance of Muninn.`)",
+		"help": "Check whose instance of Muninn is running."
 	},
 	{
 		"name": "test",
-		"body": "msg.reply('you have invoked my ping.')"
+		"body": "msg.reply('you have invoked my ping.')",
+		"help": "A test for munscript. Not a useful script."
 	},
 	{
 		"name": "ban",
 		"level": 2,
-		"body": "const origChannel = msg.channel; const server = origChannel.guild; msg.mentions.users.map(user => server.ban(user).then(user => origChannel.send(`${user.tag} banned.`)).catch(process.log));"
+		"body": "const origChannel = msg.channel; const server = origChannel.guild; msg.mentions.users.map(user => server.ban(user).then(user => origChannel.send(`${user.tag} banned.`)).catch(process.log));",
+		"help": "Bans the mentioned user."
 	},
 	{
 		"name": "kick",
 		"level": 2,
-		"body": "msg.mentions.users.filter(user => msg.guild.members.has(user.id)).map(user => msg.guild.members.get(user.id).kick().then(member => msg.channel.send(`Kicked ${member.displayName}.`)).catch(process.log))"
+		"body": "msg.mentions.users.filter(user => msg.guild.members.has(user.id)).map(user => msg.guild.members.get(user.id).kick().then(member => msg.channel.send(`Kicked ${member.displayName}.`)).catch(process.log))",
+		"help": "Kicks the mentioned user."
 	},
 	{
 		"name": "userchannel",
 		"level": 2,
-		"body": "const server = msg.guild;const origChannel = msg.channel;let name = args[0];let userOwner = msg.mentions.users.first();let category = args.length >= 2? server.channels.filter(chan => chan.type === 'category').find(chan => chan.name.toLowerCase() === args[1].toLowerCase()):undefined;let channelOptions = {type: 'text'};if(userOwner !== undefined) channelOptions.permissionOverwrites = [{id: userOwner.id, allow:['MANAGE_CHANNELS','MANAGE_MESSAGES','MANAGE_ROLES','MANAGE_ROLES_OR_PERMISSIONS']}];let newChannel = server.createChannel(name, channelOptions).then(channel => category === undefined? channel: channel.setParent(category)).then(channel => origChannel.send(`${channel} created.`));"
+		"body": "const server = msg.guild;const origChannel = msg.channel;let name = args[0];let userOwner = msg.mentions.users.first();let category = args.length >= 2? server.channels.filter(chan => chan.type === 'category').find(chan => chan.name.toLowerCase() === args[1].toLowerCase()):undefined;let channelOptions = {type: 'text'};if(userOwner !== undefined) channelOptions.permissionOverwrites = [{id: userOwner.id, allow:['MANAGE_CHANNELS','MANAGE_MESSAGES','MANAGE_ROLES','MANAGE_ROLES_OR_PERMISSIONS']}];let newChannel = server.createChannel(name, channelOptions).then(channel => category === undefined? channel: channel.setParent(category)).then(channel => origChannel.send(`${channel} created.`));",
+		"help": "Creates a new channel, and optionally moves it to a category and gives a mentioned user moderation permissions in that channel. Syntax is `$userChannel <name> [<name of category>] [@user]`."
+	},
+	{
+		"name": "resetservername",
+		"level": 3,
+		"body": "const server = msg.guild; let defaultName = settings.defaultName; if (defaultName) server.edit({name: defaultName[0]}).then(() => msg.channel.send(`Changed server name to ${defaultName}.`)).catch(e => process.log(e));",
+		"help": "If the server has a default name defined in its settings, the server name is reverted to that. Otherwise, does nothing."
 	}
 ]
