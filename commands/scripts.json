@@ -38,5 +38,10 @@
 		"level": 3,
 		"body": "const server = msg.guild; let defaultName = settings.defaultName; if (defaultName) server.edit({name: defaultName[0]}).then(() => msg.channel.send(`Changed server name to ${defaultName}.`)).catch(e => process.log(e));",
 		"help": "If the server has a default name defined in its settings, the server name is reverted to that. Otherwise, does nothing."
+	},
+	{
+		"name": "colorme",
+		"level": -1,
+		"body": "if(args.length === 0) return msg.reply('You need to include a color.'); let color = args[0].replace('#', '').toUpperCase(); try{color = parseInt(color, 16);} catch (e) {return msg.reply('Your color does not resolve. Try a hex color code.')} let member = msg.member, server = msg.guild, name = member.displayName, position = member.highestRole.position + 1; let roles = server.roles; let role = roles.find(role => role.name === name); if(role === null){server.createRole({name, permissions: 0, color, hoist: false, mentionable: false}).then(role => member.addRole(role));} else {role.setColor(color);}"
 	}
 ]
