@@ -3,6 +3,7 @@ const settings = require('./serverSettings');
 const requires = Object.fromEntries(Object.keys(require('./scriptRequirements')).map(key => [key, require(require('./scriptRequirements')[key])]));;
 const argDef = (level) => `msg,args${level >= 0 && level <= 3? ',settings': ''}${level === 0? ',requires': ''}`; //level 0 scripts can have access to other modules
 let rawScriptsArray = require('./scripts');
+const gitPull = require('./gitPull');
 
 let scripts = {
 	'new': {
@@ -140,6 +141,17 @@ let scripts = {
 			}
 		},
 		help: 'Dump is used to transfer files created and changed by Muninn that are not included in Muninn\'s Github repo.'
+	},
+	pull: {
+		level: 0,
+		exec(msg, args, settings, requires) {
+			if(args.length === 0) {
+				gitPull.clone().then(() => msg.channel.send('Repo clone completed.'));
+			} else if (args[0] === 'repo') {
+				gitPull.clone().then(() => msg.channel.send('Repo clone completed.'));
+			}
+		},
+		help: 'Pull will clone data from the interwebs over this instance of Muninn.'
 	}
 };
 rawScriptsArray.forEach(script => {

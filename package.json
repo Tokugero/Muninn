@@ -11,6 +11,7 @@
   "dependencies": {
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
-    "node-7z": "^2.1.1"
+    "node-7z": "^2.1.1",
+    "nodegit": "^0.27.0"
   }
 }
