@@ -29,6 +29,9 @@ module.exports = {
 						attachment: `${botDir}/Muninn.7z`,
 						name: `Muninn.${frontLoadNum(year)}.${frontLoadNum(month)}.${frontLoadNum(date)}.${frontLoadNum(hours)}.${frontLoadNum(minutes)}.7z`
 					}]
+				}).catch(e => {
+					origChannel.send('Upload failed. See mun-log for details.');
+					process.log(e);
 				}).then(() => {
 					unlink(`${botDir}/Muninn.7z`, (err) => {
 						if (err) throw err;
