@@ -25,7 +25,7 @@
 	{
 		"name": "userchannel",
 		"level": 2,
-		"body": "const server=msg.guild;const origChannel=msg.channel;let name=args[0];let userOwner=msg.mentions.users.first();let category=args.length>=2?server.channels.cache.filter(chan=>chan.type==='category').find(chan=>chan.name.toLowerCase()===args[1].toLowerCase()):undefined;let channelOptions ={type:'text'};if(userOwner) channelOptions.permissionOverwrites=[{id:userOwner.id,allow:['MANAGE_CHANNELS','MANAGE_MESSAGES','MANAGE_ROLES','MANAGE_ROLES_OR_PERMISSIONS']}];if(category) channelOptions.parent=category;let newChannel=server.channels.create(name,channelOptions).then(channel=>origChannel.send(`${channel} created.`));",		"help": "Creates a new channel, and optionally moves it to a category and gives a mentioned user moderation permissions in that channel. Syntax is `$userChannel <name> [<name of category>] [@user]`."
+		"body": "const server=msg.guild;const origChannel=msg.channel;let name=args[0];let userOwner=msg.mentions.users.first();let category=args.length>=2?server.channels.cache.filter(chan=>chan.type==='category').find(chan=>chan.name.toLowerCase()===args[1].toLowerCase()):undefined;let channelOptions ={type:'text'};if(userOwner) channelOptions.permissionOverwrites=[{id:userOwner.id,allow:['MANAGE_CHANNELS','MANAGE_MESSAGES','MANAGE_ROLES']}];if(category) channelOptions.parent=category;let newChannel=server.channels.create(name,channelOptions).then(channel=>origChannel.send(`${channel} created.`));",		"help": "Creates a new channel, and optionally moves it to a category and gives a mentioned user moderation permissions in that channel. Syntax is `$userChannel <name> [<name of category>] [@user]`."
 	},
 	{
 		"name": "resetservername",
