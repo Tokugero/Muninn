@@ -4,14 +4,14 @@ module.exports = {
 	ListCommands: require('./listCommands'),
 	MunKill: require('./kill'),
 	MunBoot: require('./reboot'),
-	MunArch: require('./selfArchive'),
+	/*MunArch: require('./selfArchive'), discontinued for now due to size*/
 	MunClean: require('./spamCleanup'),
-	MunScript: require('./aReallyReallyBadIdea'),
+	MunScript: require('./runScripts'),
 	FactLookup: require('./factLookup'),
 	FactDef: require('./factDef'),
 	SpitFax: require('./discordObjectDefine'),
-	Raffle: require('./raffle'),
-	NotABug: require('./notABug'),
-	DontPingSimon: require('./dontPingSimon'),
+	/*Raffle: require('./raffle'), temporarily discontinued*/
+	/*NotABug: require('./notABug'), discontinued*/
+	/*DontPingSimon: require('./dontPingSimon'), discontinued*/
 	
 };

@@ -18,7 +18,7 @@ function parseArgs(server, args){
 	let users = args.filter(arg => isMention(arg) === 'user').map(arg => extractSnowflake(arg));
 	let roles = args.filter(arg => isMention(arg) === 'role').map(arg => extractSnowflake(arg));
 	let channels = args.filter(arg => isMention(arg) === 'channel').map(arg => extractSnowflake(arg));
-	let serverUsers = server.members.map(member => {
+	let serverUsers = server.members.cache.map(member => {
 		return {
 			id: member.id,
 			username: member.user.username.toLowerCase(),
@@ -28,20 +28,20 @@ function parseArgs(server, args){
 	});
 	let others = args.filter(arg => !isMention(arg)).map(arg => {
 		let larg = arg.toLowerCase();
-		let user = server.members.has(arg)? server.members.get(arg) :
+		let user = server.members.cache.has(arg)? server.members.cache.get(arg) :
 			serverUsers.find(obj => larg === obj.username || larg === obj.tag || larg === obj.displayname);
 		if(user) {
 			users.push(user.id);
 			return 0;
 		}
-		let role = server.roles.has(arg)? server.roles.get(arg) :
-			server.roles.find(role => role.name.toLowerCase() === larg);
+		let role = server.roles.cache.has(arg)? server.roles.cache.get(arg) :
+			server.roles.cache.find(role => role.name.toLowerCase() === larg);
 		if(role) {
 			roles.push(role.id);
 			return 0;
 		}
-		let channel = server.channels.has(arg)? server.channels.get(arg) :
-			server.channels.find(channel => channel.name.toLowerCase() === larg);
+		let channel = server.channels.cache.has(arg)? server.channels.cache.get(arg) :
+			server.channels.cache.find(channel => channel.name.toLowerCase() === larg);
 		if(channel) {
 			channels.push(channel.id);
 		}
@@ -52,7 +52,7 @@ function parseArgs(server, args){
 function isMemberInGroup(keys, member){
 	let server = member.guild;
 	let authorID = `u${member.id}`;
-	let rolesID = member.roles.keyArray().map(id => `r${id}`);
+	let rolesID = member.roles.cache.keyArray().map(id => `r${id}`);
 	let settings = process.serverSettings.has(server.id)? process.serverSettings.get(server.id) : undefined;
 	if(settings === undefined) return false;
 	let checkKey = (key) => {
@@ -137,7 +137,7 @@ const supportedSettings = {
 	},
 	'defaultName': {
 		type: 'string',
-		help: 'The server\'s usual name. Used to reset the server name and generate server branded embeds. Recommended to set with server name in quotes.',
+		help: 'The server\'s usual name. Used to reset the server name and generate server branded embeds. Recommended to set with server name in double quotes.',
 		allowedToSet: (server, member) => isAllowedToSet(server, HAS_BOT_ACCESS, member),
 		set: (settings, argsObject) => {
 			settings.defaultName = [argsObject.others[0]];
@@ -162,13 +162,13 @@ function settingToString(server, setting, type){
 		let dataType = setting.charAt(0);
 		setting = setting.substring(1);
 		switch(dataType) {
-			case 'u': return server.members.get(setting).displayName;
-			case 'r': return server.roles.get(setting).name;
-			case 'c': return server.channels.get(setting).name;
+			case 'u': return server.members.cache.get(setting).displayName;
+			case 'r': return server.roles.cache.get(setting).name;
+			case 'c': return server.channels.cache.get(setting).name;
 			default: return setting;
 		}
 	} else if(type === 'color') {
-		return `#${setting} (https://www.wolframalpha.com/input/?i=%23${setting})`
+		return `#${setting}`
 	}
 	return setting;
 }
@@ -194,7 +194,7 @@ module.exports = {
 		if(args.length === 0){
 			let message = 'This command is used to set server specific variables for other commands. For syntax and flags, use `munset -help`. To view all settings and which settings you have set, use `munset -list`.'
 			if(!hasSettings) message += '\r\nThis server has no settings yet. To initialize the admin and moderator to default values, use `munset -init`.';
-			return;
+			return origChannel.send(message);
 		}
 		if(args[0].toLowerCase() === '-help') {
 			args.shift();
@@ -202,14 +202,12 @@ module.exports = {
 				let message = 'Valid syntax for this command is `munset [flags] <setting> <user or role>`. For example,';
 				message += `\r\nmunset serverAdmin ${msg.member}\r\n`
 				message += 'This command supports several additional flags.\r\n`-init` will automatically make the server owner the serverAdmin and fill moderator with a role named moderator, if there is one. Other settings will not be given a default value.';
-				origChannel.send(message);
-				return;
+				return origChannel.send(message);
 			} else {
 				let setting = args.shift().toLowerCase();
 				setting = settingsNames.find(name => name.toLowerCase() === setting);
 				if(setting !== undefined) {
-					origChannel.send(`${backtickWrap(setting)}: ${supportedSettings[setting].help}`);
-					return;
+					return origChannel.send(`${backtickWrap(setting)}: ${supportedSettings[setting].help}`);
 				}
 			}
 		}
@@ -233,7 +231,7 @@ module.exports = {
 				process.serverSettings.set(server.id, settings);
 			}
 			settings.serverAdmin = [`u${server.ownerID}`];
-			let moderator = server.roles.find(role => role.name.toLowerCase() === 'moderator');
+			let moderator = server.roles.cache.find(role => role.name.toLowerCase() === 'moderator');
 			if(moderator !== null) settings.moderator = [`r${moderator}`];
 			writeSettings(server, origChannel);
 			return;
@@ -243,8 +241,7 @@ module.exports = {
 			setting = settingsNames.find(name => name.toLowerCase() === setting);
 			if(args.length === 0 && setting !== undefined) {
 				let settingType = supportedSettings[setting].type;
-				origChannel.send(`${backtickWrap(setting)}: ${settings[setting].map(setting => settingToString(server, setting, settingType)).join(', ')}`);
-				return;
+				return origChannel.send(`${backtickWrap(setting)}: ${settings[setting].map(setting => settingToString(server, setting, settingType)).join(', ')}`);
 			}
 			if(setting !== undefined){
 				let settingDef = supportedSettings[setting];

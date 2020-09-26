@@ -14,10 +14,10 @@ const supportedObjects = {
 		argUsers = (args.length > 1 ? args.slice(1) : [])
 			.filter(user => !user.startsWith('<@!'));//filter out mentions, since those are already handled
 		argUsers.forEach(argUser => {
-			let membersWithName = server.members.filter(member => member.displayName.toLowerCase() === argUser.toLowerCase() || member.user.username.toLowerCase() === argUser.toLowerCase() || member.id === argUser);
+			let membersWithName = server.members.cache.filter(member => member.displayName.toLowerCase() === argUser.toLowerCase() || member.user.username.toLowerCase() === argUser.toLowerCase() || member.id === argUser);
 			if(membersWithName.size > 0) users = users.concat(membersWithName);
 		});
-		users = users.map(user => server.fetchMember(user));
+		users = users.map(user => server.members.fetch(user));
 		Promise.all(users).then(users => {
 			let userReports = users.map(user => {
 				let userData = [];
@@ -33,7 +33,7 @@ const supportedObjects = {
 				});
 				if(user._roles) userData.push({
 					name: 'Roles',
-					value: user._roles.map(role => server.roles.get(role).name).reverse().join(', '),
+					value: user._roles.map(role => server.roles.cache.get(role).name).reverse().join(', '),
 					inline: false
 				});
 				if(user.lastMessage) userData.push({
@@ -60,25 +60,27 @@ const supportedObjects = {
 			return;
 		}
 		let channel = args[1];
-		if(channel.startsWith('<#')) channel = extractSnowflake(channel);
-		let matchingChannel = server.channels.filter(chan => (chan.id === channel || chan.name.toLowerCase() === channel.toLowerCase()) && chan.type !== 'category').first();
-		let chanData = [];
-		if(!matchingChannel) {
-			origChannel.send('Invalid channel.');
-			return;
+		if(msg.mentions.channels && msg.mentions.channels.size > 0) {
+			channel = msg.mentions.channels.first();
 		}
-		if(matchingChannel.parentID) chanData.push({
+		else {
+			if(channel.startsWith('<#')) channel = extractSnowflake(channel);
+			channel = server.channels.cache.filter(chan => (chan.id === channel || chan.name.toLowerCase() === channel.toLowerCase()) && chan.type !== 'category').first();
+		}
+		if(!channel) return origChannel.send('Invalid channel.');
+		let chanData = [];
+		if(channel.parentID) chanData.push({
 			name: 'Category',
-			value: server.channels.get(matchingChannel.parentID).name,
+			value: channel.parent.name,
 			inline: false
 		});
-		if(matchingChannel.topic) chanData.push({
+		if(channel.topic) chanData.push({
 			name: 'Topic',
-			value: matchingChannel.topic,
+			value: channel.topic,
 			inline: false
 		});
-		if(matchingChannel.lastMessageID) {
-			let lastMessage = matchingChannel.messages.get(matchingChannel.lastMessageID);
+		if(channel.lastMessageID) {
+			let lastMessage = channel.messages.cache.last();
 			if(lastMessage) chanData.push({
 				name: 'Last Message',
 				value: `${lastMessage.member}: ${lastMessage.content}`,
@@ -86,7 +88,7 @@ const supportedObjects = {
 			});
 		}
 		origChannel.send({embed: {
-			title: `# ${matchingChannel.name}`,
+			title: `# ${channel.name}`,
 			fields: chanData
 		}});
 	},
@@ -96,15 +98,20 @@ const supportedObjects = {
 			return;
 		}
 		let channel = args[1];
-		if(channel.startsWith('<#')) channel = extractSnowflake(channel);
-		let matchingChannel = server.channels.filter(chan => (chan.id === channel || chan.name.toLowerCase() === channel.toLowerCase()) && chan.type !== 'category').first();
-		if(!matchingChannel || !matchingChannel.type === 'text') {
+		if(msg.mentions.channels && msg.mentions.channels.size > 0) {
+			channel = msg.mentions.channels.first();
+		}
+		else {
+			if(channel.startsWith('<#')) channel = extractSnowflake(channel);
+			channel = server.channels.cache.filter(chan => (chan.id === channel || chan.name.toLowerCase() === channel.toLowerCase()) && chan.type !== 'category').first();
+		}
+		if(!channel || !channel.type === 'text') {
 			origChannel.send('Invalid or non-text channel.');
 			return;
 		}
-		matchingChannel.fetchMessage(args[2]).then(message => {
+		channel.messages.fetch(args[2]).then(message => {
 			let messData = {
-				title: `${message.author.tag}'s message in #${matchingChannel.name}`,
+				title: `${message.author.tag}'s message in #${channel.name}`,
 				fields: []
 			};
 			if(message.content) messData.description = message.content;

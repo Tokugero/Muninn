@@ -8,7 +8,7 @@ module.exports = {
 		return [command, args, msg];
 	},
 	execute(msg, args) {
-		const commands = args[0];
+		const commands = args.shift();
 		const origChannel = msg.channel;
 		const server = origChannel.guild;
 		if(!server.available) return;

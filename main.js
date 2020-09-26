@@ -27,9 +27,11 @@ function initializeBot(){
 function loggedIn(){
 	groups = bot.commands.get('munset').groups;
 	console.info(`Logged in as ${bot.user.tag}!`);
-	const logChannel = bot.guilds.get(baseServer).channels.get(munLog);
-	process.log = (str) => logChannel.send(typeof str === 'string'? str: util.format(str))
-	.catch(error => console.log(`${str} failed to send.\r\n${error}`));
+	bot.guilds.fetch(baseServer).then(server => {
+		const logChannel = server.channels.resolve(munLog);
+		process.log = (str) => logChannel.send(typeof str === 'string'? str: util.format(str))
+		.catch(error => console.log(`${str} failed to send.\r\n${error}`));
+	});
 }
 
 function handleMessage(msg){
@@ -55,7 +57,7 @@ function handleMessage(msg){
 	if (botCommand.allowedChannels !== undefined && !botCommand.allowedChannels.includes(chan) && chan !== 'console'){
 		return;
 	}
-	if (botCommand.allowedUsers !== undefined && author !== ADMIN && author !== AUXADMIN){
+	if (botCommand.allowedUsers !== undefined && !process.isAdmin(author)){
 		let allowedUsers = botCommand.allowedUsers;
 		if(Array.isArray(allowedUsers) && !allowedUsers.includes(author)){
 			return;
@@ -64,11 +66,11 @@ function handleMessage(msg){
 			return;
 		}
 	}
-	process.log(`${msg.author.tag} called command: ${command}${args.length > 0? ' with args ' + args:''}`);
-	//cooldown handling
+	process.log(`${msg.author.tag} called command: ${command}${args.length > 0? ' with args "' + args.join(' ') + '"' :''}`);
+	//cooldown handling - NEEDS TO BE SERVER SPECIFIC
 	if(botCommand.cooldown !== undefined) {
 		let now = Date.now();
-		if(botCommand.lastCall !== undefined && author !== ADMIN){
+		if(botCommand.lastCall !== undefined && !process.isAdmin(author)){
 			let timeSinceLastCall = now - botCommand.lastCall;
 			if(timeSinceLastCall < botCommand.cooldown){
 				let timeLeft = (botCommand.cooldown - timeSinceLastCall)/1000.0;
