@@ -1,4 +1,6 @@
 require('dotenv').config();
+const Discord = require('discord.js');
+const botCommands = require('./commands');
 const util = require('util');
 const ADMIN = process.env.ADMIN;
 const AUXADMIN = process.env.AUXADMIN;
@@ -9,8 +11,20 @@ let bot = undefined;
 let groups = undefined;
 process.isAdmin = (id) => (id === process.env.ADMIN || id === process.env.AUXADMIN);
 
+function initializeBot(){
+	if(bot !== undefined) return bot;
+	
+	bot = new Discord.Client();
+	bot.commands = new Discord.Collection();
+	bot.commandAliases = [];
+	Object.keys(botCommands).map(key => {
+		bot.commands.set(botCommands[key].name, botCommands[key]);
+		if(botCommands[key].alias !== undefined) bot.commandAliases.push(botCommands[key].alias);
+	});
+	return bot;
+}
+
 function loggedIn(){
-	bot = process.bot;
 	groups = bot.commands.get('munset').groups;
 	console.info(`Logged in as ${bot.user.tag}!`);
 	const logChannel = bot.guilds.get(baseServer).channels.get(munLog);
@@ -75,6 +89,7 @@ function handleMessage(msg){
 }
 
 module.exports = {
+	initializeBot,
 	loggedIn,
 	handleMessage
 };

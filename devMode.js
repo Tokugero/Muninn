@@ -1,14 +1,6 @@
-const {loggedIn, handleMessage} = require('./main');
-const Discord = require('discord.js');
-const bot = new Discord.Client();
+const {initializeBot, loggedIn, handleMessage} = require('./main');
 
-bot.commands = new Discord.Collection();
-bot.commandAliases = [];
-const botCommands = require('./commands');
-Object.keys(botCommands).map(key => {
-	bot.commands.set(botCommands[key].name, botCommands[key]);
-	if(botCommands[key].alias !== undefined) bot.commandAliases.push(botCommands[key].alias);
-});
+const bot = initializeBot();
 
 const TOKEN = process.env.TOKEN;
 delete process.env.TOKEN;
