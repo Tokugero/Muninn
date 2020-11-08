@@ -27,7 +27,9 @@ jobs:
           # content of ssh private key. ex raw content of ~/.ssh/id_rsa
           key: ${{ secrets.REMOTE_PRIVATE_SSH_KEY }}
           # execute pre-commands before scp
-          first_ssh: pm2 stop all
+          first_ssh: |
+            pm2 stop all
+            rm -rf /discord-bot
           # scp from local to remote
           scp: ./* => /discord-bot/
           # execute post-commands after scp
