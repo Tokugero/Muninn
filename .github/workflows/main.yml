@@ -14,7 +14,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        
+      - name: actions/setup-node
+        uses: actions/setup-node@v1.4.1
+        with:
+          node-version: "13.9.0"
+      - name: npm install
+        uses: jaid/action-npm-install@v1.2.1
       - name: ssh-scp-ssh-pipelines
         uses: cross-the-world/ssh-scp-ssh-pipelines@e1c2bf0c8d7813a3243dc649b6af178262a834e9
         with:
@@ -36,7 +41,5 @@ jobs:
           scp: ./* => /discord-bot/
           # execute post-commands after scp
           last_ssh: |
-            cd /discord-bot/
-            npm install 
             pm2 start index.js
             pm2 save
