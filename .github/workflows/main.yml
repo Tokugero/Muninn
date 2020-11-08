@@ -29,7 +29,9 @@ jobs:
           # execute pre-commands before scp
           first_ssh: |
             pm2 stop all
-            rm -rf /discord-bot/*
+            export TIME=$(date +%s)
+            mkdir ~/discord-bot-bak$TIME
+            mv /discord-bot/* ~/discord-bot-bak$TIME/*
           # scp from local to remote
           scp: ./* => /discord-bot/
           # execute post-commands after scp
