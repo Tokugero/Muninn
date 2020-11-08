@@ -29,7 +29,7 @@ jobs:
           # execute pre-commands before scp
           first_ssh: |
             pm2 stop all
-            rm -rf /discord-bot
+            rm -rf /discord-bot/*
           # scp from local to remote
           scp: ./* => /discord-bot/
           # execute post-commands after scp
